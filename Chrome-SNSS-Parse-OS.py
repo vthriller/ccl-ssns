@@ -44,9 +44,6 @@ __outputtype__ = 1
 __outputext__ = None
 
 
-DATE_FMT = "%d/%m/%Y %H:%M:%S"
-
-
 class SsnsError(Exception):
     pass
 
@@ -148,7 +145,7 @@ def main(args):
             index = navigation.index,
             title = navigation.title,
             url = navigation.url,
-            time = navigation.timestamp.strftime(DATE_FMT),
+            time = navigation.timestamp.timestamp(),
             transition_type = str(navigation.transition_type),
             referrer = navigation.referrer_url,
             search_terms = navigation.search_terms,
