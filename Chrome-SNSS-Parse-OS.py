@@ -33,6 +33,7 @@ import io
 import struct
 import binascii
 import csv
+import json
 
 import ccl_chrome_pickle
 import ccl_chrome_tab_state
@@ -141,19 +142,11 @@ def main(args):
     if version != 1:
         print("ERROR: Invalid version (expected: 1; actual: {0}".format(version))
 
-    tab_tables = {}
-    file_objects = []
+    tabs = {}
 
     for tab_id, navigation in iter_navigation_commands(f):
-        if tab_id not in tab_tables:
-            tab_file = open(os.path.join(out_path, "tab{0}.csv".format(tab_id)), "wt",
-                            encoding="utf-8", newline="")
-            file_objects.append(tab_file)
-            tab_tables[tab_id] = csv.writer(tab_file)
-            tab_tables[tab_id].writerow(["Index", "Title", "URL", "Timestamp",
-                                         "Transition Type", "Referrer",
-                                         "Search Terms", "HTTP Status Code",
-                                         "Page State"])
+        if tab_id not in tabs:
+            tabs[tab_id] = []
 
         has_frame_state = False
         if navigation.page_state:
@@ -176,14 +169,19 @@ def main(args):
 
                     page_state_file.close()
 
-        tab_tables[tab_id].writerow([navigation.index, navigation.title, navigation.url,
-                                     navigation.timestamp.strftime(DATE_FMT),
-                                     navigation.transition_type, navigation.referrer_url,
-                                     navigation.search_terms, navigation.http_status_code,
-                                     "yes" if has_frame_state else "no"])
+        tabs[tab_id].append(dict(
+            index = navigation.index,
+            title = navigation.title,
+            url = navigation.url,
+            time = navigation.timestamp.strftime(DATE_FMT),
+            transition_type = str(navigation.transition_type),
+            referrer = navigation.referrer_url,
+            search_terms = navigation.search_terms,
+            http_status_code = navigation.http_status_code,
+            page_state = has_frame_state,
+        ))
 
-    for file in file_objects:
-        file.close()
+    json.dump(tabs, sys.stdout)
 
 
 if __name__ == "__main__":
