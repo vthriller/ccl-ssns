@@ -32,7 +32,6 @@ import os
 import io
 import struct
 import binascii
-import csv
 import json
 
 import ccl_chrome_pickle
@@ -128,9 +127,6 @@ def parse_blink_form_state(obj):
 
 def main(args):
     in_path = args[0]
-    out_path = args[1]
-
-    os.mkdir(out_path)
 
     f = open(in_path, "rb")
     header = f.read(8)
@@ -179,8 +175,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: {0} <SNSS File (Current/Last Tabs/Session> <out dir>".format(
+    if len(sys.argv) < 2:
+        print("Usage: {0} <SNSS File (Current/Last Tabs/Session>".format(
             os.path.basename(sys.argv[0])))
         exit(1)
 
