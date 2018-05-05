@@ -148,6 +148,18 @@ def main(args):
         if tab_id not in tabs:
             tabs[tab_id] = []
 
+        tabs[tab_id].append(dict(
+            index = navigation.index,
+            title = navigation.title,
+            url = navigation.url,
+            time = navigation.timestamp.strftime(DATE_FMT),
+            transition_type = str(navigation.transition_type),
+            referrer = navigation.referrer_url,
+            search_terms = navigation.search_terms,
+            http_status_code = navigation.http_status_code,
+            #page_state = has_frame_state,
+        ))
+
         has_frame_state = False
         if navigation.page_state:
             for frame in flatten_frame_states(navigation.page_state.frame_state):
@@ -168,18 +180,6 @@ def main(args):
                             page_state_writer.writerow([form_id, key, form_type, value])
 
                     page_state_file.close()
-
-        tabs[tab_id].append(dict(
-            index = navigation.index,
-            title = navigation.title,
-            url = navigation.url,
-            time = navigation.timestamp.strftime(DATE_FMT),
-            transition_type = str(navigation.transition_type),
-            referrer = navigation.referrer_url,
-            search_terms = navigation.search_terms,
-            http_status_code = navigation.http_status_code,
-            page_state = has_frame_state,
-        ))
 
     json.dump(tabs, sys.stdout)
 
