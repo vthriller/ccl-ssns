@@ -157,29 +157,23 @@ def main(args):
             referrer = navigation.referrer_url,
             search_terms = navigation.search_terms,
             http_status_code = navigation.http_status_code,
-            #page_state = has_frame_state,
         ))
 
-        has_frame_state = False
         if navigation.page_state:
             for frame in flatten_frame_states(navigation.page_state.frame_state):
                 if frame.document_state:
-                    has_frame_state = True
-                    form_state = parse_blink_form_state(frame.document_state)
-                    page_state_file = open(
-                            os.path.join(
-                                    out_path,
-                                    "tab{0}-navigation{1} page_state.csv".format(
-                                            tab_id, navigation.index)),
-                            "wt", encoding="utf-8", newline="")
-                    page_state_writer = csv.writer(page_state_file)
-                    page_state_writer.writerow(["Form ID", "Key", "Type", "Value"])
+                    state = []
+                    tabs[tab_id][-1]['state'] = state
 
+                    form_state = parse_blink_form_state(frame.document_state)
                     for form_id in form_state:
                         for (key, form_type), value in form_state[form_id].items():
-                            page_state_writer.writerow([form_id, key, form_type, value])
-
-                    page_state_file.close()
+                            state.append(dict(
+                                form_id = form_id,
+                                key = key,
+                                form_type = form_type,
+                                value = value,
+                            ))
 
     json.dump(tabs, sys.stdout)
 
